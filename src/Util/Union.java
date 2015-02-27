@@ -1,8 +1,5 @@
 package Util;
 
-import Util.Splitting;
-import Util.StringWork;
-
 import java.util.ArrayList;
 import java.util.List;
 /**
@@ -12,16 +9,19 @@ public class Union {
     private List<String> keywordArray = new ArrayList<String>();
     private List<String> text = new ArrayList<String>();
 
-    public void updateUnion(String string) {
+    public List<String> updateUnion(String string) {
         List<String> keywordArray = Splitting.splitByBackslash(string);
+
         if(keywordArray.size() == 0) {
-            return;
+            return new ArrayList<String>();
         }
 
         String keywordAndText = keywordArray.get(keywordArray.size() - 1);
         text.add(StringWork.string2Space(keywordAndText));
         keywordArray.set(keywordArray.size() - 1, StringWork.string1Space(keywordAndText));
         addKeywords(keywordArray);
+
+        return keywordArray;
     }
 
     public List<String> getKeywordArray() {
@@ -36,8 +36,13 @@ public class Union {
         return text.get(text.size() - 1);
     }
 
-    private void addKeywords(List<String> keywordarray){
-        this.keywordArray.addAll(keywordarray);
+
+    private void addKeywords(List<String> keywordArray){
+        for(int i = 0; i < keywordArray.size(); i++){
+            keywordArray.set(i, keywordArray.get(i).trim());
+        }
+
+        this.keywordArray.addAll(keywordArray);
     }
 
     @Override

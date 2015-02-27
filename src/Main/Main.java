@@ -1,5 +1,6 @@
 package Main;
 import Parser.Parser;
+import Parser.ParserHTML;
 import java.io.IOException;
 /**
  * Created by mikhail on 2/2/15.
@@ -7,8 +8,11 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        Parser parser = new Parser("example.rtf", "example.txt");
-        parser.parse();
+        Parser parser1 = new Parser("example.rtf", "example.txt");
+        parser1.parse();
+
+        ParserHTML parser2 = new ParserHTML("example.rtf", "example.html");
+        parser2.parse();
     }
 }
 

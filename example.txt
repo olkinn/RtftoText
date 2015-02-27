@@ -1,1 +1,1 @@
-     Hello  World  
+       For example,  SLASH B turns on bold,  whereas  SLASH   B0 turns off bold.  

@@ -12,7 +12,6 @@ public class RtfIsText {
 
     public static boolean rtfIsPlainText(List<String> array) {
 
-        List<String> failAtArray = new ArrayList<String>(Arrays.asList(failAt));
         for (String str : array) {
             for (String s : failAt) {
 

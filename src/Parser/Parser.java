@@ -26,7 +26,7 @@ public class Parser {
     }
 
     public void parse() throws IOException {
-        logger.info("start logging");
+        //logger.info("start logging");
 
         getNextLine();
         string = string.substring(1);
@@ -35,7 +35,6 @@ public class Parser {
         boolean isSkipping = false;
         int skippingLevel = 10000000;
         Stack<Union> stack = new Stack<Union>();
-        List<String> keywordArray;
         Union union = new Union();
 
         do {
@@ -44,7 +43,6 @@ public class Parser {
             union.updateUnion(StringWork.string1Paranth(string));
 
             if(!isSkipping && !RtfIsText.rtfIsPlainText(union.getKeywordArray())) {
-                //вычеркивает левел, пропуская вложенные уровни
                 isSkipping = true;
                 skippingLevel = stack.size();
             }
@@ -57,8 +55,8 @@ public class Parser {
                 fos.print(union.getLastText());
             }
 
-            logger.info("Skipping: " + isSkipping + " skipping level: " + skippingLevel);
-            logger.info(stack.size() + "\n" + stack);
+            //logger.info("Skipping: " + isSkipping + " skipping level: " + skippingLevel);
+            //logger.info(stack.size() + "\n" + stack);
 
             if(c == '{') {
                 stack.push(union);

@@ -25,10 +25,16 @@ public class Splitting {
         int a = string.indexOf("{");
         int b = string.indexOf("}");
 
-        if (a==-1 && b==-1) return -1;
-        else if(a==-1 && b!=-1) return b;
-        else if(a!=-1 && b==-1) return a;
-        else if(a<b) return a;
-        else return b;
+        if (a == -1 && b == -1) {
+            return -1;
+        } else if(a == -1 && b != -1) {
+            return b;
+        } else if(a != -1 && b == -1) {
+            return a;
+        } else if(a < b) {
+            return a;
+        } else {
+            return b;
+        }
     }
 }
