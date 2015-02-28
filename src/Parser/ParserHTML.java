@@ -17,7 +17,7 @@ public class ParserHTML {
     private BufferedReader fis;
     private PrintWriter fos;
     private String string = "";
-    private final String START = "<!DOCTYPE html><html><head><title>Page Title</tRitle></head><body>";
+    private final String START = "<!DOCTYPE html><html><head><title>Page Title</title></head><body>";
     private final String END = "</body></html>";
 
     private HtmlTags htmlTags = HtmlTags.getInstance();
