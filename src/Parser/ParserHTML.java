@@ -15,21 +15,29 @@ public class ParserHTML {
     private static Logger logger = Logger.getLogger(ParserHTML.class.getName());
 
     private BufferedReader fis;
-    private PrintWriter fos;
+    private PrintWriter fosHtml;
+    private PrintWriter fosTxt;
+    private Boolean txt;
+    private Boolean html;
     private String string = "";
     private final String START = "<!DOCTYPE html><html><head><title>Page Title</title></head><body>";
     private final String END = "</body></html>";
 
     private HtmlTags htmlTags = HtmlTags.getInstance();
+    // /получение объекта синглтона (тоже самое как new только для 1 единственного объекта
 
-    public ParserHTML(String fileInput, String fileOutput) throws FileNotFoundException {
+    public ParserHTML(String fileInput, String fileOutputTxt,Boolean t, String fileOutputHtml, Boolean h)
+            throws FileNotFoundException {
         fis = new BufferedReader(new InputStreamReader(new FileInputStream(fileInput)));
-        fos = new PrintWriter((fileOutput));
+        fosHtml = new PrintWriter(fileOutputHtml);
+        fosTxt = new PrintWriter(fileOutputTxt);
+        txt = t;
+        html = h;
     }
 
     public void parse() throws IOException {
         //logger.info("start logging");
-        fos.print(START);
+        if (html) fosHtml.print(START);
 
         getNextLine();
         string = string.substring(1);
@@ -46,17 +54,23 @@ public class ParserHTML {
             lastKeywords = union.updateUnion(StringWork.string1Paranth(string));
 
             if(!isSkippingText && !RtfIsText.rtfIsPlainText(union.getKeywordArray())) {
+                //вычеркивает левел, пропуская вложенные уровни
                 isSkippingText = true;
                 skippingLevel = stack.size();
-            }
+            }//пропускаем
 
             if(stack.size() < skippingLevel) {
                 isSkippingText = false;
             }
 
             if(!isSkippingText) {
-                openTags(lastKeywords);
-                fos.print(union.getLastText());
+                if (html){
+                    openTags(lastKeywords);
+                    fosHtml.print(union.getLastText());
+                }
+                if (txt) {
+                    fosTxt.print(union.getLastText());
+                }
             }
 
             System.out.println("keywordArray:" + "\n" + union.getKeywordArray());
@@ -72,14 +86,16 @@ public class ParserHTML {
             //logger.info(stack.size() + "\n" + stack);
 
             if(c == '{') {
-                stack.push(union);
-                union = new Union();
+                stack.push(union);//кладем в стек
+                union = new Union();//новый уровень в стеке
             } else {
                 if(!isSkippingText) {
-                    closeTags(union.getKeywordArray());
+                    if (html) {
+                        closeTags(union.getKeywordArray());
+                    }
                 }
 
-                if(stack.size() > 0) {
+                if(stack.size() > 0) {//в последний раз когда закроем скобку нечего будет вытащить из стека
                     union = stack.pop();
                 }
             }
@@ -87,16 +103,21 @@ public class ParserHTML {
             string = StringWork.string2Paranth(string);
         } while(getNextLine());
 
-        fos.print(END);
-        fos.flush();
-        fos.close();
+        fosTxt.flush();
+        fosTxt.close();
+
+        if (html) {
+            fosHtml.print(END);
+        }
+        fosHtml.flush();//записываем все, что было в буфере - уточнить
+        fosHtml.close();
 
     }
 
     private void openTags(List<String> keywords) {
         for(String key : keywords) {
             if(htmlTags.contains(key)) {
-                fos.print(htmlTags.getStartTag(key));
+                fosHtml.print(htmlTags.getStartTag(key));
             }
         }
     }
@@ -104,7 +125,7 @@ public class ParserHTML {
     private void closeTags(List<String> keywords) {
         for(String key : keywords) {
             if(htmlTags.contains(key)) {
-                fos.print(htmlTags.getEndTag(key));
+                fosHtml.print(htmlTags.getEndTag(key));
             }
         }
     }
@@ -112,6 +133,7 @@ public class ParserHTML {
     private boolean getNextLine() throws IOException {
         String s;
         while(Splitting.indexOfParanth(string) == -1 && (s = fis.readLine()) != null) {
+        //пока нет скобки в строке и пока не закончился файл, то мы приписываем строку и к ней пробел для к-то метода
             string += s + " ";
         }
 
