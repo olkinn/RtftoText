@@ -24,7 +24,8 @@ public class ParserHTML {
     private final String END = "</body></html>";
 
     private HtmlTags htmlTags = HtmlTags.getInstance();
-    // /получение объекта синглтона (тоже самое как new только для 1 единственного объекта
+
+    private Stack<String> tags = new Stack<String>();
 
     public ParserHTML(String fileInput, String fileOutputTxt,Boolean t, String fileOutputHtml, Boolean h)
             throws FileNotFoundException {
@@ -54,10 +55,9 @@ public class ParserHTML {
             lastKeywords = union.updateUnion(StringWork.string1Paranth(string));
 
             if(!isSkippingText && !RtfIsText.rtfIsPlainText(union.getKeywordArray())) {
-                //вычеркивает левел, пропуская вложенные уровни
                 isSkippingText = true;
                 skippingLevel = stack.size();
-            }//пропускаем
+            }
 
             if(stack.size() < skippingLevel) {
                 isSkippingText = false;
@@ -86,16 +86,16 @@ public class ParserHTML {
             //logger.info(stack.size() + "\n" + stack);
 
             if(c == '{') {
-                stack.push(union);//кладем в стек
-                union = new Union();//новый уровень в стеке
+                stack.push(union);
+                union = new Union();
             } else {
                 if(!isSkippingText) {
                     if (html) {
-                        closeTags(union.getKeywordArray());
+                        closeTags();
                     }
                 }
 
-                if(stack.size() > 0) {//в последний раз когда закроем скобку нечего будет вытащить из стека
+                if(stack.size() > 0) {
                     union = stack.pop();
                 }
             }
@@ -109,7 +109,7 @@ public class ParserHTML {
         if (html) {
             fosHtml.print(END);
         }
-        fosHtml.flush();//записываем все, что было в буфере - уточнить
+        fosHtml.flush();
         fosHtml.close();
 
     }
@@ -118,22 +118,20 @@ public class ParserHTML {
         for(String key : keywords) {
             if(htmlTags.contains(key)) {
                 fosHtml.print(htmlTags.getStartTag(key));
+                tags.push(key);
             }
         }
     }
 
-    private void closeTags(List<String> keywords) {
-        for(String key : keywords) {
-            if(htmlTags.contains(key)) {
-                fosHtml.print(htmlTags.getEndTag(key));
-            }
+    private void closeTags() {
+        while (tags.size() > 0){
+            fosHtml.print(htmlTags.getEndTag(tags.pop()));
         }
     }
 
     private boolean getNextLine() throws IOException {
         String s;
         while(Splitting.indexOfParanth(string) == -1 && (s = fis.readLine()) != null) {
-        //пока нет скобки в строке и пока не закончился файл, то мы приписываем строку и к ней пробел для к-то метода
             string += s + " ";
         }
 
